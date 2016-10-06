@@ -1,0 +1,54 @@
+Steps to run efi shell on qemu 
+(Ideal test env to test uefi apps)
+
+1. install qemu
+2. Create hdd img 
+        dd if=/dev/zero of=/home/devbox/efi-work/tools/run-ovmf/disk.img bs=512 count=93750
+3. Format hdd
+
+        gdisk disk.img 
+        GPT fdisk (gdisk) version 1.0.1
+
+        Partition table scan:
+        MBR: not present
+        BSD: not present
+        APM: not present
+        GPT: not present
+
+        Creating new GPT entries.
+
+        Command (? for help): o
+        This option deletes all partitions and creates a new protective MBR.
+        Proceed? (Y/N): y
+
+        Command (? for help): n
+        Partition number (1-128, default 1):  
+        First sector (34-93716, default = 2048) or {+-}size{KMGTP}: 
+        Last sector (2048-93716, default = 93716) or {+-}size{KMGTP}: 
+        Current type is 'Linux filesystem'
+        Hex code or GUID (L to show codes, Enter = 8300): ef00
+        Changed type of partition to 'EFI System'
+
+        Command (? for help): w
+
+        Final checks complete. About to write GPT data. THIS WILL OVERWRITE EXISTING
+        PARTITIONS!!
+
+        Do you want to proceed? (Y/N): y
+        OK; writing new GUID partition table (GPT) to disk.img.
+        Warning: The kernel is still using the old partition table.
+        The new table will be used at the next reboot or after you
+        run partprobe(8) or kpartx(8)
+        The operation has completed successfully.
+4.losetup to present the partition to Linux on a loopback device
+        losetup --offset 1048576 --sizelimit 46934528 /dev/loop10 disk.img
+5.Mount device for use
+        mount /dev/loop10 /mnt
+6. Copy apps to mounted partition 
+         cp ../edk2/Build/DuetPkgX64/DEBUG_GCC49/X64/SkApps.efi /mnt/
+7. Unmount 
+         umount /mnt
+8. run qemu with prepared disk image
+        qemu-system-x86_64 -cpu qemu64 -bios bios.bin -drive file=disk.img
+
+ 
