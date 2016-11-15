@@ -42,13 +42,14 @@ Steps to run efi shell on qemu
         The operation has completed successfully.
 4.losetup to present the partition to Linux on a loopback device
         losetup --offset 1048576 --sizelimit 46934528 /dev/loop10 disk.img
-5.Mount device for use
+5.Format the partition
+6.Mount device for use
         mount /dev/loop10 /mnt
-6. Copy apps to mounted partition 
+7. Copy apps to mounted partition 
          cp ../edk2/Build/DuetPkgX64/DEBUG_GCC49/X64/SkApps.efi /mnt/
-7. Unmount 
+8. Unmount 
          umount /mnt
-8. run qemu with prepared disk image
+9. run qemu with prepared disk image
         qemu-system-x86_64 -cpu qemu64 -bios bios.bin -drive file=disk.img
 
  
